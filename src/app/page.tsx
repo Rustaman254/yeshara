@@ -81,19 +81,19 @@ export default function PrimaryMarketPage() {
       <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Asset Marketplace</h1>
-          <p className="mt-1 text-neutral-400 text-sm">Invest in tokenized real-world assets</p>
+          <p className="mt-1 text-neutral-600 dark:text-neutral-400 text-sm">Invest in tokenized real-world assets</p>
         </div>
         <div className="flex items-center gap-2">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Filter by title or location…"
-            className="sm:hidden w-40 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm placeholder:text-neutral-500 outline-none focus:border-violet-500"
+            className="sm:hidden w-40 rounded-lg bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 px-3 py-2 text-sm placeholder:text-neutral-600 dark:text-neutral-500 outline-none focus:border-violet-500"
           />
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
-            className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-neutral-200 outline-none focus:border-violet-500"
+            className="rounded-lg bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 outline-none focus:border-violet-500"
           >
             <option value="featured">Featured</option>
             <option value="price_asc">Price: Low to High</option>
@@ -104,7 +104,7 @@ export default function PrimaryMarketPage() {
             <button
               onClick={() => setShowFilter((v) => !v)}
               className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm ${
-                riskFilter.size > 0 ? "border-violet-500 text-violet-300" : "border-white/10 text-neutral-300 hover:bg-white/5"
+                riskFilter.size > 0 ? "border-violet-500 text-violet-700 dark:text-violet-300" : "border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -112,10 +112,10 @@ export default function PrimaryMarketPage() {
               {riskFilter.size > 0 && <span className="ml-0.5 text-xs">({riskFilter.size})</span>}
             </button>
             {showFilter && (
-              <div className="absolute right-0 mt-2 w-44 rounded-lg border border-white/10 bg-[#151020] p-3 z-30 shadow-xl">
-                <p className="text-[0.65rem] uppercase tracking-wide text-neutral-500 mb-2">Risk level</p>
+              <div className="absolute right-0 mt-2 w-44 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#151020] p-3 z-30 shadow-xl">
+                <p className="text-[0.65rem] uppercase tracking-wide text-neutral-600 dark:text-neutral-500 mb-2">Risk level</p>
                 {RISK_LEVELS.map((r) => (
-                  <label key={r} className="flex items-center gap-2 py-1 text-sm text-neutral-300 capitalize">
+                  <label key={r} className="flex items-center gap-2 py-1 text-sm text-neutral-700 dark:text-neutral-300 capitalize">
                     <input
                       type="checkbox"
                       checked={riskFilter.has(r)}
@@ -143,7 +143,7 @@ export default function PrimaryMarketPage() {
             key={c.key}
             onClick={() => setAssetType(c.key)}
             className={`shrink-0 rounded-lg px-3.5 py-1.5 text-sm capitalize transition-colors ${
-              assetType === c.key ? "bg-violet-600 text-white" : "bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-neutral-200"
+              assetType === c.key ? "bg-violet-600 text-white" : "bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10 hover:text-neutral-800 dark:hover:text-neutral-200"
             }`}
           >
             {c.label}
@@ -152,13 +152,13 @@ export default function PrimaryMarketPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 mb-6">{error}</div>
+        <div className="rounded-lg border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300 mb-6">{error}</div>
       )}
 
       {loading ? (
-        <div className="text-neutral-500 text-sm">Loading offerings…</div>
+        <div className="text-neutral-600 dark:text-neutral-500 text-sm">Loading offerings…</div>
       ) : visible.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-white/10 py-16 text-center text-neutral-500">
+        <div className="rounded-xl border border-dashed border-neutral-200 dark:border-white/10 py-16 text-center text-neutral-600 dark:text-neutral-500">
           {offerings.length === 0 ? "No offerings are live right now." : "No offerings match these filters."}
         </div>
       ) : (
@@ -178,9 +178,9 @@ export default function PrimaryMarketPage() {
 }
 
 const RISK_STYLE: Record<string, string> = {
-  low: "text-emerald-400",
-  medium: "text-amber-400",
-  high: "text-red-400",
+  low: "text-emerald-600 dark:text-emerald-400",
+  medium: "text-amber-600 dark:text-amber-400",
+  high: "text-red-600 dark:text-red-400",
 };
 
 function OfferingCard({
@@ -196,32 +196,32 @@ function OfferingCard({
   const minAmount = offering.minInvestmentUnits ? offering.minInvestmentUnits * offering.pricePerUnit : null;
 
   return (
-    <div className="group rounded-xl border border-white/10 bg-[#141019] overflow-hidden hover:border-white/20 transition-colors">
-      <div className="relative aspect-[4/3] bg-neutral-800">
+    <div className="group rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] overflow-hidden hover:border-neutral-300 dark:hover:border-white/20 transition-colors">
+      <div className="relative aspect-[4/3] bg-neutral-200 dark:bg-neutral-800">
         {offering.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={offering.imageUrl} alt={offering.title} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full flex items-center justify-center">
-            <TrendingUp className="h-8 w-8 text-neutral-600" />
+            <TrendingUp className="h-8 w-8 text-neutral-400 dark:text-neutral-600" />
           </div>
         )}
-        <span className="absolute top-2 left-2 rounded bg-black/60 backdrop-blur px-2 py-0.5 text-[0.65rem] font-medium capitalize text-neutral-100">
+        <span className="absolute top-2 left-2 rounded bg-black/60 backdrop-blur px-2 py-0.5 text-[0.65rem] font-medium capitalize text-neutral-900 dark:text-neutral-100">
           {offering.assetType.replace(/_/g, " ")}
         </span>
         <button
           onClick={onToggleFavorite}
-          className="absolute top-2 right-2 rounded-full bg-black/60 backdrop-blur p-1.5 text-neutral-200 hover:text-violet-300"
+          className="absolute top-2 right-2 rounded-full bg-black/60 backdrop-blur p-1.5 text-neutral-800 dark:text-neutral-200 hover:text-violet-700 dark:hover:text-violet-300"
         >
-          <Bookmark className={`h-3.5 w-3.5 ${favorite ? "fill-violet-400 text-violet-400" : ""}`} />
+          <Bookmark className={`h-3.5 w-3.5 ${favorite ? "fill-violet-400 text-violet-600 dark:text-violet-400" : ""}`} />
         </button>
         {funded != null && (
           <div className="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur px-2 py-1.5">
-            <div className="flex items-center justify-between text-[0.65rem] text-neutral-200 mb-1">
+            <div className="flex items-center justify-between text-[0.65rem] text-neutral-800 dark:text-neutral-200 mb-1">
               <span>Funded</span>
               <span>{funded}%</span>
             </div>
-            <div className="h-1 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-1 rounded-full bg-neutral-100 dark:bg-white/10 overflow-hidden">
               <div className="h-full bg-violet-500" style={{ width: `${funded}%` }} />
             </div>
           </div>
@@ -231,31 +231,34 @@ function OfferingCard({
       <div className="p-4">
         <h3 className="font-semibold text-sm truncate">{offering.title}</h3>
         {offering.location && (
-          <p className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
+          <p className="mt-1 flex items-center gap-1 text-xs text-neutral-600 dark:text-neutral-500">
             <MapPin className="h-3 w-3" /> {offering.location}
           </p>
         )}
 
         <div className="mt-3 flex items-center justify-between text-xs">
           <div>
-            <p className="text-neutral-500">Token Price</p>
-            <p className="font-semibold text-neutral-100">
+            <p className="text-neutral-600 dark:text-neutral-500">Token Price</p>
+            <p className="font-semibold text-neutral-900 dark:text-neutral-100">
               {offering.pricePerUnit.toLocaleString()} {offering.currency}
             </p>
+            {offering.kesPerUnit != null && offering.currency !== "KES" && (
+              <p className="text-[0.65rem] text-neutral-600 dark:text-neutral-500">≈ KES {offering.kesPerUnit.toLocaleString()}</p>
+            )}
           </div>
           <div className="text-right">
-            <p className="text-neutral-500">Expected Yield</p>
-            <p className="font-semibold text-emerald-400">
+            <p className="text-neutral-600 dark:text-neutral-500">Expected Yield</p>
+            <p className="font-semibold text-emerald-600 dark:text-emerald-400">
               {offering.expectedYieldPct != null ? `${offering.expectedYieldPct}%` : "—"}
             </p>
           </div>
         </div>
 
         <div className="mt-2 flex items-center justify-between text-xs">
-          <span className={`font-medium capitalize ${offering.riskLevel ? RISK_STYLE[offering.riskLevel] ?? "text-neutral-500" : "text-neutral-600"}`}>
+          <span className={`font-medium capitalize ${offering.riskLevel ? RISK_STYLE[offering.riskLevel] ?? "text-neutral-600 dark:text-neutral-500" : "text-neutral-400 dark:text-neutral-600"}`}>
             {offering.riskLevel ? `${offering.riskLevel} risk` : "Risk n/a"}
           </span>
-          <span className="text-neutral-500">
+          <span className="text-neutral-600 dark:text-neutral-500">
             Min. {minAmount != null ? `${minAmount.toLocaleString()} ${offering.currency}` : "—"}
           </span>
         </div>
@@ -263,7 +266,7 @@ function OfferingCard({
         <div className="mt-4 flex items-center gap-2">
           <Link
             href={`/marketplace/${offering.offeringId}`}
-            className="flex-1 rounded-lg border border-white/10 py-1.5 text-center text-xs font-medium text-neutral-300 hover:bg-white/5"
+            className="flex-1 rounded-lg border border-neutral-200 dark:border-white/10 py-1.5 text-center text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5"
           >
             View details
           </Link>

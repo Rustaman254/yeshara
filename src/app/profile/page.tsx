@@ -10,10 +10,10 @@ import { ShieldCheck, ShieldAlert, ShieldX, Clock, MapPin, Mail, Calendar, Finge
 import type { KycStatus } from "@/lib/api";
 
 const KYC_META: Record<KycStatus, { icon: React.ReactNode; label: string; cls: string }> = {
-  unverified: { icon: <ShieldAlert className="h-4 w-4" />, label: "Not verified", cls: "bg-neutral-500/10 text-neutral-300 border-neutral-500/20" },
-  pending: { icon: <Clock className="h-4 w-4" />, label: "Pending review", cls: "bg-amber-500/10 text-amber-300 border-amber-500/20" },
-  verified: { icon: <ShieldCheck className="h-4 w-4" />, label: "Verified", cls: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20" },
-  rejected: { icon: <ShieldX className="h-4 w-4" />, label: "Rejected", cls: "bg-red-500/10 text-red-300 border-red-500/20" },
+  unverified: { icon: <ShieldAlert className="h-4 w-4" />, label: "Not verified", cls: "bg-neutral-100 dark:bg-neutral-500/10 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-500/20" },
+  pending: { icon: <Clock className="h-4 w-4" />, label: "Pending review", cls: "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/20" },
+  verified: { icon: <ShieldCheck className="h-4 w-4" />, label: "Verified", cls: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/20" },
+  rejected: { icon: <ShieldX className="h-4 w-4" />, label: "Rejected", cls: "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-300 border-red-200 dark:border-red-500/20" },
 };
 
 function initials(name?: string, email?: string) {
@@ -36,7 +36,7 @@ export default function ProfilePage() {
   if (loading || !investor) {
     return (
       <DashboardShell>
-        <div className="text-neutral-500 text-sm">Loading…</div>
+        <div className="text-neutral-600 dark:text-neutral-500 text-sm">Loading…</div>
       </DashboardShell>
     );
   }
@@ -47,15 +47,15 @@ export default function ProfilePage() {
     <DashboardShell>
       <div className="max-w-3xl">
         <h1 className="text-2xl font-semibold tracking-tight mb-1">Profile</h1>
-        <p className="text-sm text-neutral-500 mb-6">Your account and identity information.</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-500 mb-6">Your account and identity information.</p>
 
-        <div className="rounded-xl border border-white/10 bg-[#141019] p-6 mb-6 flex items-center gap-4">
+        <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6 mb-6 flex items-center gap-4">
           <div className="h-16 w-16 rounded-full bg-violet-600/80 flex items-center justify-center text-xl font-semibold shrink-0">
             {initials(investor.fullName, investor.email)}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-lg font-semibold truncate">{investor.fullName}</p>
-            <p className="text-sm text-neutral-500 truncate">{investor.email}</p>
+            <p className="text-sm text-neutral-600 dark:text-neutral-500 truncate">{investor.email}</p>
           </div>
           {kyc && (
             <span className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${kyc.cls}`}>
@@ -66,7 +66,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="rounded-xl border border-white/10 bg-[#141019] p-6">
+          <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6">
             <h2 className="font-semibold mb-4 text-sm">Personal information</h2>
             <dl className="space-y-4 text-sm">
               <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value={investor.email} />
@@ -84,14 +84,14 @@ export default function ProfilePage() {
               />
             </dl>
             {(kycStatus === "unverified" || kycStatus === "rejected") && (
-              <Link href="/kyc" className="mt-4 inline-block text-xs text-violet-400 hover:underline">
+              <Link href="/kyc" className="mt-4 inline-block text-xs text-violet-600 dark:text-violet-400 hover:underline">
                 Complete identity verification →
               </Link>
             )}
-            {kycStatus === "pending" && <p className="mt-4 text-xs text-neutral-500">Verification pending review.</p>}
+            {kycStatus === "pending" && <p className="mt-4 text-xs text-neutral-600 dark:text-neutral-500">Verification pending review.</p>}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-[#141019] p-6">
+          <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6">
             <h2 className="font-semibold mb-4 text-sm">Account</h2>
             <dl className="space-y-4 text-sm">
               <InfoRow
@@ -122,17 +122,17 @@ function AddressRow({ address, onSaved }: { address?: string; onSaved: () => Pro
   if (editing) {
     return (
       <div className="flex items-start gap-3">
-        <span className="text-neutral-500 mt-0.5">
+        <span className="text-neutral-600 dark:text-neutral-500 mt-0.5">
           <MapPin className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <dt className="text-xs text-neutral-500 mb-1">Address</dt>
+          <dt className="text-xs text-neutral-600 dark:text-neutral-500 mb-1">Address</dt>
           <div className="flex items-center gap-2">
             <input
               autoFocus
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              className="flex-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm text-neutral-100 outline-none focus:border-violet-500"
+              className="flex-1 rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-2 py-1 text-sm text-neutral-900 dark:text-neutral-100 outline-none focus:border-violet-500"
             />
             <button
               disabled={saving || !value.trim()}
@@ -154,7 +154,7 @@ function AddressRow({ address, onSaved }: { address?: string; onSaved: () => Pro
               <Check className="h-3.5 w-3.5" />
             </button>
           </div>
-          {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+          {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
         </div>
       </div>
     );
@@ -162,19 +162,19 @@ function AddressRow({ address, onSaved }: { address?: string; onSaved: () => Pro
 
   return (
     <div className="flex items-start gap-3 group">
-      <span className="text-neutral-500 mt-0.5">
+      <span className="text-neutral-600 dark:text-neutral-500 mt-0.5">
         <MapPin className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
-        <dt className="text-xs text-neutral-500">Address</dt>
-        <dd className="text-neutral-100 break-words">{address || "Not provided"}</dd>
+        <dt className="text-xs text-neutral-600 dark:text-neutral-500">Address</dt>
+        <dd className="text-neutral-900 dark:text-neutral-100 break-words">{address || "Not provided"}</dd>
       </div>
       <button
         onClick={() => {
           setValue(address || "");
           setEditing(true);
         }}
-        className="text-neutral-600 hover:text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="text-neutral-400 dark:text-neutral-600 hover:text-violet-600 dark:hover:text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity"
         title={address ? "Edit address" : "Add address"}
       >
         <Pencil className="h-3.5 w-3.5" />
@@ -188,14 +188,14 @@ function WalletRow({ address }: { address: string | null }) {
 
   return (
     <div className="flex items-start gap-3">
-      <span className="text-neutral-500 mt-0.5">
+      <span className="text-neutral-600 dark:text-neutral-500 mt-0.5">
         <Wallet className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
-        <dt className="text-xs text-neutral-500">Stellar wallet address</dt>
+        <dt className="text-xs text-neutral-600 dark:text-neutral-500">Stellar wallet address</dt>
         {address ? (
           <div className="flex items-center gap-2">
-            <dd className="text-neutral-100 font-mono text-xs break-all">{address}</dd>
+            <dd className="text-neutral-900 dark:text-neutral-100 font-mono text-xs break-all">{address}</dd>
             <button
               onClick={async () => {
                 try {
@@ -206,14 +206,14 @@ function WalletRow({ address }: { address: string | null }) {
                   // clipboard access can be denied — non-critical
                 }
               }}
-              className="shrink-0 text-neutral-500 hover:text-violet-400"
+              className="shrink-0 text-neutral-600 dark:text-neutral-500 hover:text-violet-600 dark:hover:text-violet-400"
               title="Copy address"
             >
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
             </button>
           </div>
         ) : (
-          <dd className="text-neutral-500 text-sm">Provisioning…</dd>
+          <dd className="text-neutral-600 dark:text-neutral-500 text-sm">Provisioning…</dd>
         )}
       </div>
     </div>
@@ -223,10 +223,10 @@ function WalletRow({ address }: { address: string | null }) {
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="text-neutral-500 mt-0.5">{icon}</span>
+      <span className="text-neutral-600 dark:text-neutral-500 mt-0.5">{icon}</span>
       <div className="min-w-0">
-        <dt className="text-xs text-neutral-500">{label}</dt>
-        <dd className="text-neutral-100 break-words">{value}</dd>
+        <dt className="text-xs text-neutral-600 dark:text-neutral-500">{label}</dt>
+        <dd className="text-neutral-900 dark:text-neutral-100 break-words">{value}</dd>
       </div>
     </div>
   );
