@@ -7,21 +7,142 @@
   --foreground: #171717;
 }
 
+/* Yeshara marketing/app design system — sampled from the approved landing
+   page design. Near-black ground with a teal-tinted card surface, a muted
+   aqua accent (buttons, links, emphasized words), and a warm amber for
+   "live"/notice states. Used by both the landing page and the app shell
+   (dashboard/marketplace) so the two never feel like different products.
+   Unconditional on :root (not gated behind .dark) — this is a fixed brand
+   palette, not a light/dark preference toggle; the landing design has no
+   light variant to fall back to. */
+:root,
+.dark {
+  --ink: #04090a;
+  --ink-2: #050f0e;
+  --card: #0a1615;
+  --card-hover: #0d1c1a;
+  --card-border: #16302d;
+  --card-border-strong: #1f3f3b;
+  --ink-fg: #f4fbfb;
+  --ink-muted: #8ba7a5;
+  --ink-faint: #567270;
+  --accent: #8fd0d2;
+  --accent-strong: #aee7e9;
+  --accent-dim: #4f7d7e;
+  --accent-soft-bg: #0f2321;
+  --amber: #e2ab55;
+  --amber-dim: #7a5d2c;
+  --amber-soft-bg: #241a0c;
+  --danger: #e0685f;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-display);
+  --font-display: var(--font-display);
+  --font-script: var(--font-script);
   --font-mono: var(--font-geist-mono);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-card-border: var(--card-border);
+  --color-card-border-strong: var(--card-border-strong);
+  --color-ink-fg: var(--ink-fg);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-dim: var(--accent-dim);
+  --color-accent-soft-bg: var(--accent-soft-bg);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+  --color-amber-soft-bg: var(--amber-soft-bg);
+  --color-danger: var(--danger);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer components {
   .input {
     @apply w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500;
   }
+
+  /* Landing/marketplace primitives — one definition, reused everywhere so
+     "fonts to colors to shapes to cards" stays a single source of truth
+     instead of drifting per-section. */
+  .yz-card {
+    @apply rounded-2xl border border-card-border bg-card;
+  }
+  .yz-eyebrow {
+    @apply flex items-center gap-2 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-accent;
+  }
+  .yz-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-ink transition-colors hover:bg-accent-strong;
+  }
+  .yz-btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-card-border-strong bg-transparent px-5 py-3 text-sm font-semibold text-ink-fg transition-colors hover:border-accent-dim hover:bg-card;
+  }
+  .yz-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-card-border-strong px-3 py-1 text-[0.6875rem] font-medium uppercase tracking-wide text-ink-muted;
+  }
+  .yz-badge-live {
+    @apply inline-flex items-center rounded-full bg-amber-soft-bg px-2.5 py-1 text-[0.625rem] font-semibold uppercase tracking-wide text-amber;
+  }
+  .yz-badge-teal {
+    @apply inline-flex items-center rounded-full bg-accent-soft-bg px-2.5 py-1 text-[0.625rem] font-semibold uppercase tracking-wide text-accent;
+  }
+  .yz-input {
+    @apply w-full rounded-lg border border-card-border-strong bg-ink px-3.5 py-2.5 text-sm text-ink-fg placeholder:text-ink-faint outline-none transition-colors focus:border-accent;
+  }
+}
+
+/* Range slider — teal fill via a solid track colored by the browser-native
+   track color plus an accent thumb, since styling the "filled" portion of a
+   native <input type=range> requires a background-size trick, not classes. */
+.yz-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--card-border-strong);
+  outline: none;
+}
+.yz-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+  cursor: pointer;
+}
+.yz-slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+  cursor: pointer;
+}
+.yz-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--card-border-strong);
+}
+
+/* The cursive "highlighter" emphasis used on a handful of headline words —
+   see the <Script> helper in components/landing. Deliberately its own
+   class rather than a utility so every usage stays visually identical. */
+.yz-script {
+  font-family: var(--font-script);
+  font-weight: 700;
 }

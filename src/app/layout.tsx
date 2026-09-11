@@ -1,10 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Space_Grotesk, Caveat } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Space Grotesk is the display/body face across the whole app — the bold,
+// rounded-terminal geometric sans the marketing site uses for headings, and
+// its regular/medium weights double as body copy so the app never mixes in
+// a second unrelated sans. Caveat is the "handwritten highlighter" accent
+// used only for the odd emphasized phrase inside a headline (never body
+// copy) — see landing/*.tsx's <Script> usages.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-display",
+  subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  variable: "--font-script",
+  weight: ["600", "700"],
   subsets: ["latin"],
 });
 
@@ -36,12 +48,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${caveat.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full flex flex-col bg-neutral-50 dark:bg-[#0b0912] text-neutral-900 dark:text-neutral-100" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-display bg-neutral-50 dark:bg-ink text-neutral-900 dark:text-ink-fg" suppressHydrationWarning>
         <AuthProvider>
           <main className="flex-1">{children}</main>
         </AuthProvider>
