@@ -36,7 +36,7 @@ export default function SignUpPage() {
       footer={
         <>
           Already registered?{" "}
-          <Link href="/sign-in" className="text-violet-600 dark:text-violet-400 hover:underline">
+          <Link href="/sign-in" className="text-accent hover:text-accent-strong">
             Sign in
           </Link>
         </>
@@ -44,15 +44,15 @@ export default function SignUpPage() {
     >
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Full name</label>
+          <label className="block text-xs font-medium text-ink-faint mb-1.5">Full name</label>
           <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className={authInput} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Email</label>
+          <label className="block text-xs font-medium text-ink-faint mb-1.5">Email</label>
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={authInput} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Password</label>
+          <label className="block text-xs font-medium text-ink-faint mb-1.5">Password</label>
           <input
             type="password"
             required
@@ -62,12 +62,8 @@ export default function SignUpPage() {
             className={authInput}
           />
         </div>
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-violet-600 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
-        >
+        {error && <p className="text-sm text-danger">{error}</p>}
+        <button type="submit" disabled={loading} className="yz-btn-primary w-full disabled:opacity-50">
           {loading ? "Creating account…" : "Create account"}
         </button>
       </form>

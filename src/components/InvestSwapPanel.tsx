@@ -113,33 +113,33 @@ export function InvestSwapPanel({
 
   if (step === "processing") {
     return (
-      <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-8 text-center">
-        <Loader2 className="h-8 w-8 text-violet-600 dark:text-violet-400 animate-spin mx-auto mb-4" />
-        <p className="font-semibold">Check your phone</p>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+      <div className="yz-card p-8 text-center">
+        <Loader2 className="h-8 w-8 text-accent animate-spin mx-auto mb-4" />
+        <p className="font-semibold text-ink-fg">Check your phone</p>
+        <p className="mt-1 text-sm text-ink-muted">
           Approve the {provider === "mpesa" ? "M-Pesa" : "Airtel Money"} prompt for{" "}
-          <span className="text-neutral-900 dark:text-neutral-100 font-medium">{kesAmount.toLocaleString()} KES</span> to complete your
+          <span className="text-ink-fg font-medium">{kesAmount.toLocaleString()} KES</span> to complete your
           purchase.
         </p>
-        <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-500">This can take up to a minute — this page updates automatically.</p>
+        <p className="mt-3 text-xs text-ink-faint">This can take up to a minute — this page updates automatically.</p>
       </div>
     );
   }
 
   if (step === "success" && investment) {
     return (
-      <div className="rounded-xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/5 p-8 text-center">
-        <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-4" />
-        <p className="font-semibold text-emerald-700 dark:text-emerald-300">Purchase complete</p>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+      <div className="rounded-2xl border border-accent-dim bg-accent-soft-bg p-8 text-center">
+        <CheckCircle2 className="h-8 w-8 text-accent mx-auto mb-4" />
+        <p className="font-semibold text-accent">Purchase complete</p>
+        <p className="mt-1 text-sm text-ink-muted">
           {investment.units.toLocaleString()} units of {offering.symbol} minted to your wallet.
         </p>
         {investment.providerReference && (
-          <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-500">
-            Receipt: <code className="bg-black/30 px-1.5 py-0.5 rounded">{investment.providerReference}</code>
+          <p className="mt-2 text-xs text-ink-faint">
+            Receipt: <code className="bg-ink/60 px-1.5 py-0.5 rounded text-ink-muted">{investment.providerReference}</code>
           </p>
         )}
-        <button onClick={reset} className="mt-4 text-xs text-violet-600 dark:text-violet-400 hover:underline">
+        <button onClick={reset} className="mt-4 text-xs text-accent hover:text-accent-strong">
           Buy more
         </button>
       </div>
@@ -148,14 +148,11 @@ export function InvestSwapPanel({
 
   if (step === "failed") {
     return (
-      <div className="rounded-xl border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5 p-8 text-center">
-        <XCircle className="h-8 w-8 text-red-600 dark:text-red-400 mx-auto mb-4" />
-        <p className="font-semibold text-red-700 dark:text-red-300">Payment failed</p>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{investment?.failureReason || "The payment wasn't completed."}</p>
-        <button
-          onClick={reset}
-          className="mt-4 rounded-md bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
-        >
+      <div className="rounded-2xl border border-danger/40 bg-danger/10 p-8 text-center">
+        <XCircle className="h-8 w-8 text-danger mx-auto mb-4" />
+        <p className="font-semibold text-danger">Payment failed</p>
+        <p className="mt-1 text-sm text-ink-muted">{investment?.failureReason || "The payment wasn't completed."}</p>
+        <button onClick={reset} className="yz-btn-primary mt-4">
           Try again
         </button>
       </div>
@@ -164,25 +161,23 @@ export function InvestSwapPanel({
 
   if (step === "checkout") {
     return (
-      <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6">
-        <button onClick={() => setStep("amount")} className="text-xs text-neutral-600 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 mb-4">
+      <div className="yz-card p-6">
+        <button onClick={() => setStep("amount")} className="text-xs text-ink-faint hover:text-ink-fg mb-4">
           ← Back
         </button>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
-          Paying <span className="text-neutral-900 dark:text-neutral-100 font-semibold">{kesAmountParsed.toLocaleString()} KES</span> for{" "}
-          <span className="text-neutral-900 dark:text-neutral-100 font-semibold">{units.toFixed(2)}</span> units
+        <p className="text-sm text-ink-muted mb-3">
+          Paying <span className="text-ink-fg font-semibold">{kesAmountParsed.toLocaleString()} KES</span> for{" "}
+          <span className="text-ink-fg font-semibold">{units.toFixed(2)}</span> units
         </p>
 
-        <p className="text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-2">Pay with</p>
+        <p className="text-xs font-medium text-ink-faint mb-2">Pay with</p>
         <div className="grid grid-cols-2 gap-3 mb-4">
           {(["mpesa", "airtel"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setProvider(p)}
               className={`flex items-center justify-center gap-2 rounded-lg border py-3 text-sm font-medium transition-colors ${
-                provider === p
-                  ? "border-violet-500 bg-violet-50 dark:bg-violet-600/10 text-violet-700 dark:text-violet-300"
-                  : "border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5"
+                provider === p ? "border-accent bg-accent-soft-bg text-accent" : "border-card-border-strong text-ink-muted hover:border-accent-dim"
               }`}
             >
               <Smartphone className="h-4 w-4" />
@@ -191,21 +186,17 @@ export function InvestSwapPanel({
           ))}
         </div>
 
-        <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Phone number</label>
+        <label className="block text-xs font-medium text-ink-faint mb-1.5">Phone number</label>
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="0712345678"
-          className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 outline-none focus:border-violet-500 mb-4"
+          className="yz-input mb-4"
         />
 
-        {error && <p className="text-sm text-red-600 dark:text-red-400 mb-3">{error}</p>}
+        {error && <p className="text-sm text-danger mb-3">{error}</p>}
 
-        <button
-          onClick={submit}
-          disabled={submitting}
-          className="w-full rounded-md bg-violet-600 py-2.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
-        >
+        <button onClick={submit} disabled={submitting} className="yz-btn-primary w-full disabled:opacity-50">
           {submitting ? "Sending request…" : `Pay ${kesAmountParsed.toLocaleString()} KES`}
         </button>
       </div>
@@ -213,9 +204,9 @@ export function InvestSwapPanel({
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6">
-      <div className="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 p-4">
-        <div className="flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-500 mb-1">
+    <div className="yz-card p-6">
+      <div className="rounded-lg border border-card-border bg-ink-2 p-4">
+        <div className="flex items-center justify-between text-xs text-ink-faint mb-1">
           <span>You pay</span>
           <span>KES</span>
         </div>
@@ -225,41 +216,37 @@ export function InvestSwapPanel({
           value={kesInput}
           onChange={(e) => setKesInput(e.target.value)}
           placeholder="0"
-          className="w-full bg-transparent text-2xl font-semibold text-neutral-900 dark:text-neutral-100 outline-none placeholder:text-neutral-400 dark:text-neutral-600"
+          className="w-full bg-transparent text-2xl font-semibold text-ink-fg outline-none placeholder:text-ink-faint"
         />
         {minKes != null && (
-          <p className="mt-1 text-[0.7rem] text-neutral-600 dark:text-neutral-500">Minimum purchase: {Math.ceil(minKes).toLocaleString()} KES</p>
+          <p className="mt-1 text-[0.7rem] text-ink-faint">Minimum purchase: {Math.ceil(minKes).toLocaleString()} KES</p>
         )}
       </div>
 
       <div className="flex justify-center -my-2 relative z-10">
-        <div className="rounded-full border-4 border-neutral-200 dark:border-[#141019] bg-neutral-100 dark:bg-white/10 p-1.5">
-          <ArrowDown className="h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400" />
+        <div className="rounded-full border-4 border-card bg-card-border-strong p-1.5">
+          <ArrowDown className="h-3.5 w-3.5 text-ink-muted" />
         </div>
       </div>
 
-      <div className="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 p-4">
-        <div className="flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-500 mb-1">
+      <div className="rounded-lg border border-card-border bg-ink-2 p-4">
+        <div className="flex items-center justify-between text-xs text-ink-faint mb-1">
           <span>You receive</span>
           <span>{offering.symbol || "units"}</span>
         </div>
-        <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{kesInput ? units.toFixed(4) : "0"}</p>
-        <p className="mt-1 text-[0.7rem] text-neutral-600 dark:text-neutral-500">
+        <p className="text-2xl font-semibold text-ink-fg">{kesInput ? units.toFixed(4) : "0"}</p>
+        <p className="mt-1 text-[0.7rem] text-ink-faint">
           Fractional ownership in {offering.title} ({offering.assetType.replace(/_/g, " ")})
         </p>
       </div>
 
-      {amountError && kesInput && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{amountError}</p>}
+      {amountError && kesInput && <p className="mt-3 text-sm text-danger">{amountError}</p>}
 
-      <button
-        onClick={() => setStep("checkout")}
-        disabled={!canContinue}
-        className="mt-4 w-full rounded-md bg-violet-600 py-2.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-40"
-      >
+      <button onClick={() => setStep("checkout")} disabled={!canContinue} className="yz-btn-primary mt-4 w-full disabled:opacity-40">
         Continue
       </button>
 
-      <p className="mt-3 flex items-center justify-center gap-1.5 text-[0.7rem] text-neutral-400 dark:text-neutral-600">
+      <p className="mt-3 flex items-center justify-center gap-1.5 text-[0.7rem] text-ink-faint">
         <ShieldCheck className="h-3 w-3" /> Units are minted to your wallet the moment payment is confirmed.
       </p>
     </div>

@@ -20,7 +20,7 @@ export default function SignInPage() {
     setLoading(true);
     try {
       await signIn(email, password);
-      router.push("/");
+      router.push("/marketplace");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
     } finally {
@@ -34,7 +34,7 @@ export default function SignInPage() {
       footer={
         <>
           No account?{" "}
-          <Link href="/sign-up" className="text-violet-600 dark:text-violet-400 hover:underline">
+          <Link href="/sign-up" className="text-accent hover:text-accent-strong">
             Register
           </Link>
         </>
@@ -53,12 +53,8 @@ export default function SignInPage() {
             className={authInput}
           />
         </Field>
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-violet-600 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
-        >
+        {error && <p className="text-sm text-danger">{error}</p>}
+        <button type="submit" disabled={loading} className="yz-btn-primary w-full disabled:opacity-50">
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
@@ -69,7 +65,7 @@ export default function SignInPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-ink-faint mb-1.5">{label}</label>
       {children}
     </div>
   );

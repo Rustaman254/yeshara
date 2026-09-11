@@ -81,7 +81,7 @@ export default function PortfolioPage() {
       {holdings.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-200 dark:border-white/10 py-12 text-center text-neutral-600 dark:text-neutral-500 text-sm mb-10">
           No holdings yet.{" "}
-          <Link href="/" className="underline text-violet-600 dark:text-violet-400">
+          <Link href="/marketplace" className="underline text-violet-600 dark:text-violet-400">
             Browse the marketplace
           </Link>
         </div>

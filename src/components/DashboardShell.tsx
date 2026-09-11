@@ -51,7 +51,7 @@ export function DashboardShell({
   return (
     <div className="min-h-screen flex bg-ink text-ink-fg">
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-card-border bg-ink-2 px-4 py-6">
-        <Link href="/" className="flex items-center gap-2 px-2 mb-8">
+        <Link href="/marketplace" className="flex items-center gap-2 px-2 mb-8">
           <span className="relative flex h-7 w-7 items-center justify-center rounded-full border border-accent-dim bg-accent-soft-bg">
             <span className="h-2 w-2 rounded-full bg-accent" />
           </span>

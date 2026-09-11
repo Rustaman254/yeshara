@@ -34,14 +34,14 @@ export default function OfferingDetailPage() {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="text-neutral-600 dark:text-neutral-500 text-sm">Loading…</div>
+        <div className="text-ink-faint text-sm">Loading…</div>
       </DashboardShell>
     );
   }
   if (!detail) {
     return (
       <DashboardShell>
-        <div className="text-red-600 dark:text-red-400 text-sm">{error || "Offering not found"}</div>
+        <div className="text-danger text-sm">{error || "Offering not found"}</div>
       </DashboardShell>
     );
   }
@@ -55,12 +55,12 @@ export default function OfferingDetailPage() {
   return (
     <DashboardShell>
       <div className="max-w-4xl">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-neutral-600 dark:text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 mb-6">
+        <Link href="/marketplace" className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink-fg mb-6">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to marketplace
         </Link>
 
-        <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] overflow-hidden">
-          <div className="aspect-[21/9] bg-neutral-200 dark:bg-neutral-800">
+        <div className="yz-card overflow-hidden">
+          <div className="aspect-[21/9] bg-card-border">
             {offering.imageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={offering.imageUrl} alt={offering.title} className="h-full w-full object-cover" />
@@ -68,25 +68,20 @@ export default function OfferingDetailPage() {
           </div>
           <div className="p-8">
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="inline-block text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-white/10 rounded px-2 py-0.5">
-                {offering.assetType.replace(/_/g, " ")}
-              </span>
+              <span className="yz-pill">{offering.assetType.replace(/_/g, " ")}</span>
               {(d.tags || []).map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-block text-[0.65rem] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 rounded px-2 py-0.5"
-                >
+                <span key={tag} className="yz-badge-teal">
                   {tag}
                 </span>
               ))}
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">{offering.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-ink-fg">{offering.title}</h1>
             {offering.location && (
-              <p className="mt-1 flex items-center gap-1 text-sm text-neutral-600 dark:text-neutral-500">
+              <p className="mt-1 flex items-center gap-1 text-sm text-ink-faint">
                 <MapPin className="h-3.5 w-3.5" /> {offering.location}
               </p>
             )}
-            <p className="mt-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">{offering.description}</p>
+            <p className="mt-4 text-ink-muted text-sm leading-relaxed">{offering.description}</p>
 
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
               <Stat
@@ -101,21 +96,21 @@ export default function OfferingDetailPage() {
 
             {funded != null && (
               <div className="mt-4">
-                <div className="flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-500 mb-1">
+                <div className="flex items-center justify-between text-xs text-ink-faint mb-1">
                   <span>Funded</span>
                   <span>{funded}%</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-neutral-100 dark:bg-white/10 overflow-hidden">
-                  <div className="h-full bg-violet-500" style={{ width: `${funded}%` }} />
+                <div className="h-1.5 rounded-full bg-card-border-strong overflow-hidden">
+                  <div className="h-full bg-accent" style={{ width: `${funded}%` }} />
                 </div>
               </div>
             )}
 
             {offering.minInvestmentUnits ? (
-              <p className="mt-4 text-xs text-neutral-600 dark:text-neutral-500">Minimum investment: {offering.minInvestmentUnits} units</p>
+              <p className="mt-4 text-xs text-ink-faint">Minimum investment: {offering.minInvestmentUnits} units</p>
             ) : null}
             {offering.reservedUnits ? (
-              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-ink-faint">
                 {offering.reservedUnits.toLocaleString()} units ({Math.round((offering.reservedUnits / offering.totalUnits) * 100)}%) reserved for the
                 original owner — not part of this offering&apos;s public sale pool.
               </p>
@@ -176,7 +171,7 @@ export default function OfferingDetailPage() {
         {/* Fund profile: risk/volatility/liquidity */}
         {(offering.riskLevel || d.volatilityLevel || d.liquidityLevel) && (
           <Section title="Fund profile">
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="yz-card p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
               <LevelScale label="Risk / reward" level={offering.riskLevel} />
               <LevelScale label="Volatility" level={d.volatilityLevel} />
               <LevelScale label="Liquidity" level={d.liquidityLevel} />
@@ -187,9 +182,9 @@ export default function OfferingDetailPage() {
         {/* Performance history */}
         {d.performanceHistory && d.performanceHistory.length > 0 && (
           <Section title="Performance history">
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] overflow-hidden">
+            <div className="yz-card overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-neutral-100 dark:bg-white/5 text-left text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-500">
+                <thead className="bg-ink-2 text-left text-xs uppercase tracking-wide text-ink-faint">
                   <tr>
                     <th className="px-5 py-3">Period</th>
                     <th className="px-5 py-3 text-right">Start</th>
@@ -199,11 +194,11 @@ export default function OfferingDetailPage() {
                 </thead>
                 <tbody>
                   {d.performanceHistory.map((p, i) => (
-                    <tr key={i} className="border-t border-neutral-200 dark:border-white/5">
-                      <td className="px-5 py-3">{p.label}</td>
-                      <td className="px-5 py-3 text-right font-mono text-xs">{p.startPrice.toLocaleString()}</td>
-                      <td className="px-5 py-3 text-right font-mono text-xs">{p.endPrice.toLocaleString()}</td>
-                      <td className={`px-5 py-3 text-right font-medium ${p.returnPct >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+                    <tr key={i} className="border-t border-card-border">
+                      <td className="px-5 py-3 text-ink-fg">{p.label}</td>
+                      <td className="px-5 py-3 text-right font-mono text-xs text-ink-muted">{p.startPrice.toLocaleString()}</td>
+                      <td className="px-5 py-3 text-right font-mono text-xs text-ink-muted">{p.endPrice.toLocaleString()}</td>
+                      <td className={`px-5 py-3 text-right font-medium ${p.returnPct >= 0 ? "text-accent" : "text-danger"}`}>
                         {p.returnPct >= 0 ? "+" : ""}
                         {p.returnPct}%
                       </td>
@@ -220,9 +215,9 @@ export default function OfferingDetailPage() {
           <Section title="The opportunity">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {d.highlights.map((h, i) => (
-                <div key={i} className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-5">
-                  <p className="font-medium mb-1">{h.title}</p>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">{h.body}</p>
+                <div key={i} className="yz-card p-5">
+                  <p className="font-semibold text-ink-fg mb-1">{h.title}</p>
+                  <p className="text-sm text-ink-muted leading-relaxed">{h.body}</p>
                 </div>
               ))}
             </div>
@@ -232,18 +227,18 @@ export default function OfferingDetailPage() {
         {/* Manager */}
         {(d.managerName || d.managerBio) && (
           <Section title={d.managerName ? `Who is ${d.managerName}?` : "Manager"}>
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6">
+            <div className="yz-card p-6">
               {d.managerStats && d.managerStats.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
                   {d.managerStats.map((s, i) => (
                     <div key={i}>
-                      <p className="text-xl font-semibold">{s.value}</p>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-500">{s.label}</p>
+                      <p className="text-xl font-bold text-ink-fg">{s.value}</p>
+                      <p className="text-xs text-ink-faint">{s.label}</p>
                     </div>
                   ))}
                 </div>
               )}
-              {d.managerBio && <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line">{d.managerBio}</p>}
+              {d.managerBio && <p className="text-sm text-ink-muted leading-relaxed whitespace-pre-line">{d.managerBio}</p>}
             </div>
           </Section>
         )}
@@ -251,16 +246,16 @@ export default function OfferingDetailPage() {
         {/* Documents */}
         {d.documents && d.documents.length > 0 && (
           <Section title="Documents">
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] divide-y divide-neutral-200 dark:divide-white/5">
+            <div className="yz-card divide-y divide-card-border">
               {d.documents.map((doc, i) => (
                 <a
                   key={i}
                   href={doc.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-3 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5"
+                  className="flex items-center gap-2 px-5 py-3 text-sm text-ink-muted hover:bg-card-hover hover:text-ink-fg"
                 >
-                  <FileText className="h-4 w-4 text-neutral-600 dark:text-neutral-500" />
+                  <FileText className="h-4 w-4 text-ink-faint" />
                   {doc.name}
                 </a>
               ))}
@@ -271,25 +266,25 @@ export default function OfferingDetailPage() {
         {/* Disclosures */}
         {d.disclosures && (
           <Section title="Disclosures">
-            <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed whitespace-pre-line">{d.disclosures}</p>
+            <p className="text-xs text-ink-faint leading-relaxed whitespace-pre-line">{d.disclosures}</p>
           </Section>
         )}
 
         <div className="mt-8">
-          <h2 className="font-semibold mb-4">Invest</h2>
+          <h2 className="font-bold text-ink-fg mb-4">Invest</h2>
 
           {authLoading ? null : !investor ? (
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-8">
-              <p className="text-sm text-neutral-600 dark:text-neutral-500">
-                <Link href="/sign-in" className="text-violet-600 dark:text-violet-400 underline">
+            <div className="yz-card p-8">
+              <p className="text-sm text-ink-muted">
+                <Link href="/sign-in" className="text-accent hover:text-accent-strong underline">
                   Sign in
                 </Link>{" "}
                 to invest in this offering.
               </p>
             </div>
           ) : kycStatus !== "verified" ? (
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-8">
-              <div className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+            <div className="yz-card p-8">
+              <div className="flex items-start gap-2 rounded-lg bg-amber-soft-bg border border-amber-dim px-4 py-3 text-sm text-amber">
                 <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>
                   Identity verification required before investing.{" "}
@@ -301,13 +296,13 @@ export default function OfferingDetailPage() {
               </div>
             </div>
           ) : offering.status !== "live" ? (
-            <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-8">
-              <p className="text-sm text-neutral-600 dark:text-neutral-500">This offering is not currently open for investment.</p>
+            <div className="yz-card p-8">
+              <p className="text-sm text-ink-muted">This offering is not currently open for investment.</p>
             </div>
           ) : (
             <InvestSwapPanel offering={offering} availableUnits={availableUnits} kesPerUnit={kesPerUnit} onSettled={load} />
           )}
-          {error && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
+          {error && <p className="mt-3 text-sm text-danger">{error}</p>}
         </div>
       </div>
     </DashboardShell>
@@ -317,7 +312,7 @@ export default function OfferingDetailPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-8">
-      <h2 className="font-semibold mb-4">{title}</h2>
+      <h2 className="font-bold text-ink-fg mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -325,28 +320,28 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-lg bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 p-3">
-      <p className="text-[0.65rem] uppercase tracking-wide text-neutral-600 dark:text-neutral-500">{label}</p>
-      <p className="mt-1 font-semibold text-neutral-900 dark:text-neutral-100">{value}</p>
-      {sub && <p className="text-[0.65rem] text-neutral-600 dark:text-neutral-500">{sub}</p>}
+    <div className="rounded-lg bg-ink-2 border border-card-border p-3">
+      <p className="text-[0.65rem] uppercase tracking-wide text-ink-faint">{label}</p>
+      <p className="mt-1 font-semibold text-ink-fg">{value}</p>
+      {sub && <p className="text-[0.65rem] text-ink-faint">{sub}</p>}
     </div>
   );
 }
 
 function OverviewStat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-5">
-      <p className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-      {sub && <p className="text-xs text-neutral-600 dark:text-neutral-500 mt-0.5">{sub}</p>}
+    <div className="yz-card p-5">
+      <p className="text-xs uppercase tracking-wide text-ink-faint">{label}</p>
+      <p className="mt-1 text-2xl font-bold text-ink-fg">{value}</p>
+      {sub && <p className="text-xs text-ink-faint mt-0.5">{sub}</p>}
     </div>
   );
 }
 
 function FactCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-5">
-      <p className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-500 mb-3">{title}</p>
+    <div className="yz-card p-5">
+      <p className="text-xs uppercase tracking-wide text-ink-faint mb-3">{title}</p>
       <div className="space-y-2">{children}</div>
     </div>
   );
@@ -356,8 +351,8 @@ function Fact({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex items-center justify-between text-sm">
-      <span className="text-neutral-600 dark:text-neutral-500">{label}</span>
-      <span className="font-medium text-right">{value}</span>
+      <span className="text-ink-faint">{label}</span>
+      <span className="font-medium text-ink-fg text-right">{value}</span>
     </div>
   );
 }
@@ -368,13 +363,13 @@ function LevelScale({ label, level }: { label: string; level?: string }) {
   const n = level ? LEVEL_ORDER[level.toLowerCase()] || 0 : 0;
   return (
     <div>
-      <p className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-500 mb-2">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-ink-faint mb-2">{label}</p>
       <div className="flex items-center gap-1">
         {[1, 2, 3].map((i) => (
-          <div key={i} className={`h-2 flex-1 rounded-full ${i <= n ? "bg-violet-500" : "bg-neutral-100 dark:bg-white/10"}`} />
+          <div key={i} className={`h-2 flex-1 rounded-full ${i <= n ? "bg-accent" : "bg-card-border-strong"}`} />
         ))}
       </div>
-      <div className="flex justify-between text-[0.65rem] text-neutral-400 dark:text-neutral-600 mt-1">
+      <div className="flex justify-between text-[0.65rem] text-ink-faint mt-1">
         <span>Low</span>
         <span>Med</span>
         <span>High</span>

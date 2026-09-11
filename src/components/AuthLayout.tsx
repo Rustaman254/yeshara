@@ -15,26 +15,25 @@ export function AuthLayout({
   footer?: ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-[#0b0912] px-6 py-16">
+    <div className="dark min-h-screen flex items-center justify-center bg-ink px-6 py-16">
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center gap-2 mb-8 justify-center">
-          <div className="h-7 w-7 rounded-lg bg-violet-600 flex items-center justify-center text-xs font-bold text-white">
-            Y
-          </div>
-          <span className="font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Yeshara</span>
+          <span className="relative flex h-7 w-7 items-center justify-center rounded-full border border-accent-dim bg-accent-soft-bg">
+            <span className="h-2 w-2 rounded-full bg-accent" />
+          </span>
+          <span className="font-bold tracking-tight text-ink-fg">Yeshara</span>
         </Link>
 
-        <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-8">
-          <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 mb-1">{title}</h1>
-          {subtitle && <p className="text-sm text-neutral-600 dark:text-neutral-500 mb-6">{subtitle}</p>}
+        <div className="yz-card p-8">
+          <h1 className="text-xl font-bold tracking-tight text-ink-fg mb-1">{title}</h1>
+          {subtitle && <p className="text-sm text-ink-muted mb-6">{subtitle}</p>}
           {children}
         </div>
 
-        {footer && <div className="mt-4 text-center text-sm text-neutral-600 dark:text-neutral-500">{footer}</div>}
+        {footer && <div className="mt-4 text-center text-sm text-ink-muted">{footer}</div>}
       </div>
     </div>
   );
 }
 
-export const authInput =
-  "w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 outline-none focus:border-violet-500 placeholder:text-neutral-400 dark:text-neutral-600";
+export const authInput = "yz-input";
