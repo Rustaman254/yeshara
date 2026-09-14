@@ -82,6 +82,11 @@ export default function OfferingDetailPage() {
               </p>
             )}
             <p className="mt-4 text-ink-muted text-sm leading-relaxed">{offering.description}</p>
+            {offering.symbol && (
+              <p className="mt-2 text-xs text-ink-faint">
+                Token: <span className="font-mono text-ink-muted">{offering.symbol}</span>
+              </p>
+            )}
 
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
               <Stat
