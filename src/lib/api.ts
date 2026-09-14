@@ -186,6 +186,7 @@ export interface Offering {
   ownerAccountId?: string;
   mintTxHash?: string;
   mintTxUrl?: string;
+  assetUrl?: string;
   managerAReviewedBy?: string;
   managerAReviewedAt?: string;
   managerBReviewedBy?: string;

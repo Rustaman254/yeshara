@@ -84,7 +84,19 @@ export default function OfferingDetailPage() {
             <p className="mt-4 text-ink-muted text-sm leading-relaxed">{offering.description}</p>
             {offering.symbol && (
               <p className="mt-2 text-xs text-ink-faint">
-                Token: <span className="font-mono text-ink-muted">{offering.symbol}</span>
+                Token:{" "}
+                {offering.assetUrl || offering.mintTxUrl ? (
+                  <a
+                    href={offering.assetUrl || offering.mintTxUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-accent hover:underline"
+                  >
+                    {offering.symbol}
+                  </a>
+                ) : (
+                  <span className="font-mono text-ink-muted">{offering.symbol}</span>
+                )}
               </p>
             )}
 
