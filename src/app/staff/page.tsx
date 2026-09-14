@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as api from "@/lib/api";
 import { AuthLayout, authInput } from "@/components/AuthLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePoll } from "@/hooks/usePoll";
 
 // The seat-by-seat next action a staff member takes to clear their own
 // stage — same label across every role, since "Review" always means "I've
@@ -112,7 +113,7 @@ function StaffDashboard({ me, onLogout }: { me: api.StaffMember; onLogout: () =>
       .then((r) => setQueue(r.offerings))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load queue"));
   };
-  useEffect(load, []);
+  usePoll(load, 3000);
 
   const review = async (o: api.Offering) => {
     setBusyId(o.id);

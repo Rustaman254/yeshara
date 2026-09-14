@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import * as api from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { DashboardShell } from "@/components/DashboardShell";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function YieldPage() {
   const router = useRouter();
@@ -19,19 +20,22 @@ export default function YieldPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!investor) {
-      router.push("/sign-in");
-      return;
-    }
-    api
-      .myYield()
-      .then((r) => {
-        setEntries(r.entries);
-        setEarned(r.earnedByCurrency || {});
-        setPending(r.pendingByCurrency || {});
-      })
-      .finally(() => setLoading(false));
+    if (!investor) router.push("/sign-in");
   }, [authLoading, investor, router]);
+
+  usePoll(
+    () =>
+      api
+        .myYield()
+        .then((r) => {
+          setEntries(r.entries);
+          setEarned(r.earnedByCurrency || {});
+          setPending(r.pendingByCurrency || {});
+        })
+        .finally(() => setLoading(false)),
+    3000,
+    !authLoading && !!investor
+  );
 
   async function savePhone() {
     if (!phone.trim()) return;

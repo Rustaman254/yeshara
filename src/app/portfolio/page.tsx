@@ -6,6 +6,7 @@ import Link from "next/link";
 import * as api from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { DashboardShell } from "@/components/DashboardShell";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function PortfolioPage() {
   const router = useRouter();
@@ -30,13 +31,10 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!investor) {
-      router.push("/sign-in");
-      return;
-    }
-    reload().finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!investor) router.push("/sign-in");
   }, [authLoading, investor, router]);
+
+  usePoll(() => reload().finally(() => setLoading(false)), 3000, !authLoading && !!investor);
 
   if (authLoading || loading) {
     return (

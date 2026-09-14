@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import * as api from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { DashboardShell } from "@/components/DashboardShell";
+import { usePoll } from "@/hooks/usePoll";
 
 // comet-engine defaults to Stellar testnet (STELLAR_HORIZON_URL) unless the
 // engine deployment overrides it — set this to "public" once Yeshara moves
@@ -23,15 +24,18 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!investor) {
-      router.push("/sign-in");
-      return;
-    }
-    api
-      .myInvestments()
-      .then((r) => setInvestments(r.investments))
-      .finally(() => setLoading(false));
+    if (!investor) router.push("/sign-in");
   }, [authLoading, investor, router]);
+
+  usePoll(
+    () =>
+      api
+        .myInvestments()
+        .then((r) => setInvestments(r.investments))
+        .finally(() => setLoading(false)),
+    3000,
+    !authLoading && !!investor
+  );
 
   if (authLoading || loading) {
     return (

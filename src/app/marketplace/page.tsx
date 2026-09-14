@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as api from "@/lib/api";
 import { DashboardShell } from "@/components/DashboardShell";
 import { MapPin, TrendingUp, SlidersHorizontal, Bookmark } from "lucide-react";
+import { usePoll } from "@/hooks/usePoll";
 
 type SortKey = "featured" | "price_asc" | "price_desc" | "yield_desc";
 type Risk = "low" | "medium" | "high";
@@ -24,12 +25,6 @@ export default function MarketplacePage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    api
-      .listOfferings()
-      .then((res) => setOfferings(res.offerings))
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load offerings"))
-      .finally(() => setLoading(false));
-
     try {
       const raw = localStorage.getItem("yeshara_favorites");
       // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only localStorage read, mirrors the fetch-on-mount pattern used elsewhere in this file
@@ -38,6 +33,16 @@ export default function MarketplacePage() {
       // ignore — favorites are a local convenience only
     }
   }, []);
+
+  usePoll(
+    () =>
+      api
+        .listOfferings()
+        .then((res) => setOfferings(res.offerings))
+        .catch((err) => setError(err instanceof Error ? err.message : "Failed to load offerings"))
+        .finally(() => setLoading(false)),
+    3000
+  );
 
   const toggleFavorite = (offeringId: string) => {
     setFavorites((prev) => {

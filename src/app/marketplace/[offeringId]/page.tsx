@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import * as api from "@/lib/api";
@@ -8,6 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import { DashboardShell } from "@/components/DashboardShell";
 import { InvestSwapPanel } from "@/components/InvestSwapPanel";
 import { MapPin, ShieldCheck, ArrowLeft, FileText, ExternalLink } from "lucide-react";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function OfferingDetailPage() {
   const { offeringId } = useParams<{ offeringId: string }>();
@@ -17,8 +18,10 @@ export default function OfferingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // No setLoading(true) here — only the initial `loading` state (true)
+  // shows the full-page spinner; a poll tick just refreshes `detail` in
+  // place so the page doesn't flash back to "Loading…" every 3s.
   const load = () => {
-    setLoading(true);
     api
       .getOffering(offeringId)
       .then(setDetail)
@@ -26,10 +29,7 @@ export default function OfferingDetailPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [offeringId]);
+  usePoll(load, 3000);
 
   if (loading) {
     return (

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import * as api from "@/lib/api";
 import { OwnerShell } from "@/components/OwnerShell";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function OwnerDashboardPage() {
   const router = useRouter();
@@ -14,24 +15,27 @@ export default function OwnerDashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!api.getOwnerSessionToken()) {
-      router.push("/owner/sign-in");
-      return;
-    }
-    Promise.all([api.ownerMe(), api.ownerMyOfferings()])
-      .then(([me, o]) => {
-        setOwner(me.owner);
-        setOfferings(o.offerings);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : "Failed to load");
-        if (err instanceof api.ApiError && err.status === 401) {
-          api.clearOwnerSessionToken();
-          router.push("/owner/sign-in");
-        }
-      })
-      .finally(() => setLoading(false));
+    if (!api.getOwnerSessionToken()) router.push("/owner/sign-in");
   }, [router]);
+
+  usePoll(
+    () =>
+      Promise.all([api.ownerMe(), api.ownerMyOfferings()])
+        .then(([me, o]) => {
+          setOwner(me.owner);
+          setOfferings(o.offerings);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : "Failed to load");
+          if (err instanceof api.ApiError && err.status === 401) {
+            api.clearOwnerSessionToken();
+            router.push("/owner/sign-in");
+          }
+        })
+        .finally(() => setLoading(false)),
+    3000,
+    !!api.getOwnerSessionToken()
+  );
 
   if (loading) {
     return (

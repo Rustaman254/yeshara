@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import * as api from "@/lib/api";
 import { AuthLayout, authInput } from "@/components/AuthLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function AdminPage() {
   const [email, setEmail] = useState("");
@@ -88,7 +90,7 @@ function AdminDashboard() {
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"));
   };
 
-  useEffect(load, []);
+  usePoll(load, 3000);
 
   const revalue = async (o: api.Offering) => {
     const priceStr = prompt(`New price per unit (currently ${o.pricePerUnit} ${o.currency}):`);
@@ -192,6 +194,7 @@ function AdminDashboard() {
               <tr>
                 <th className="px-5 py-3">Title</th>
                 <th className="px-5 py-3">Symbol</th>
+                <th className="px-5 py-3">Tx</th>
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3 text-right">Total units</th>
                 <th className="px-5 py-3 text-right">Actions</th>
@@ -202,6 +205,21 @@ function AdminDashboard() {
                 <tr key={o.id} className="border-t border-neutral-200 dark:border-white/5">
                   <td className="px-5 py-3">{o.title}</td>
                   <td className="px-5 py-3 font-mono text-xs text-neutral-600 dark:text-neutral-500">{o.symbol || "—"}</td>
+                  <td className="px-5 py-3">
+                    {o.mintTxUrl || o.assetUrl ? (
+                      <a
+                        href={o.assetUrl || o.mintTxUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={o.mintTxHash}
+                        className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400 hover:underline"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <span className="text-neutral-400 dark:text-neutral-600">—</span>
+                    )}
+                  </td>
                   <td className="px-5 py-3">
                     <span className="rounded bg-neutral-100 dark:bg-white/10 px-2 py-0.5 text-xs">
                       {api.STAGE_LABELS[o.status] || o.status}
@@ -253,7 +271,7 @@ function AdminDashboard() {
               ))}
               {offerings.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-6 text-center text-neutral-600 dark:text-neutral-500">
+                  <td colSpan={6} className="px-5 py-6 text-center text-neutral-600 dark:text-neutral-500">
                     No offerings yet.
                   </td>
                 </tr>
@@ -407,7 +425,7 @@ function StaffAccountsPanel() {
       .then((r) => setStaff(r.staff))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load staff accounts"));
   };
-  useEffect(load, []);
+  usePoll(load, 3000);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -724,7 +742,7 @@ function OfferingOrders({ offering, onClose }: { offering: api.Offering; onClose
   const load = () => {
     api.adminListOfferingInvestments(offering.offeringId).then((r) => setOrders(r.investments));
   };
-  useEffect(load, [offering.offeringId]);
+  usePoll(load, 3000);
 
   const confirm = async (id: string) => {
     try {
@@ -813,7 +831,7 @@ function DistributionsPanel({ offering, onClose }: { offering: api.Offering; onC
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"));
   };
-  useEffect(load, [offering.offeringId]);
+  usePoll(load, 3000);
 
   const trigger = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -965,7 +983,7 @@ function RedemptionsQueue() {
       .then((r) => setRedemptions(r.redemptions))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"));
   };
-  useEffect(load, []);
+  usePoll(load, 3000);
 
   const approve = async (r: api.RedemptionRequest) => {
     try {
@@ -1066,7 +1084,7 @@ function PendingKyc() {
   const load = () => {
     api.adminListPendingKyc().then((r) => setPending(r.pending as KycPendingRecord[]));
   };
-  useEffect(load, []);
+  usePoll(load, 3000);
 
   const decide = async (investorId: string, approved: boolean) => {
     const reason = approved ? "" : prompt("Rejection reason:") || "";

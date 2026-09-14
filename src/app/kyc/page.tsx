@@ -6,6 +6,7 @@ import * as api from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { DashboardShell } from "@/components/DashboardShell";
 import { ShieldCheck, ShieldAlert, ShieldX, Clock } from "lucide-react";
+import { usePoll } from "@/hooks/usePoll";
 
 const darkInput =
   "w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 outline-none focus:border-violet-500";
@@ -20,6 +21,11 @@ export default function KycPage() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Polls the shared auth context's KYC status so an admin decision made
+  // while the investor is sitting on this page (pending -> verified/
+  // rejected) shows up without a manual refresh.
+  usePoll(refresh, 3000, !authLoading && !!investor);
 
   if (!authLoading && !investor) {
     router.push("/sign-in");
