@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.production is the committed default for NEXT_PUBLIC_API_URL on a
+# real deploy — not a secret, just the backend's public URL. .env.local
+# (still ignored, machine-local only) overrides it for local dev.
+!.env.production
 
 # vercel
 .vercel
