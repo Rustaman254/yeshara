@@ -7,7 +7,7 @@ import * as api from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { DashboardShell } from "@/components/DashboardShell";
 import { InvestSwapPanel } from "@/components/InvestSwapPanel";
-import { MapPin, ShieldCheck, ArrowLeft, FileText } from "lucide-react";
+import { MapPin, ShieldCheck, ArrowLeft, FileText, ExternalLink } from "lucide-react";
 
 export default function OfferingDetailPage() {
   const { offeringId } = useParams<{ offeringId: string }>();
@@ -115,6 +115,17 @@ export default function OfferingDetailPage() {
                 original owner — not part of this offering&apos;s public sale pool.
               </p>
             ) : null}
+            {offering.mintTxUrl && (
+              <a
+                href={offering.mintTxUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                View {offering.symbol ? `${offering.symbol} ` : ""}on-chain
+              </a>
+            )}
           </div>
         </div>
 

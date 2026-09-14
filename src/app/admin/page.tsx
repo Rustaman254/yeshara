@@ -75,6 +75,7 @@ export default function AdminPage() {
 function AdminDashboard() {
   const [offerings, setOfferings] = useState<api.Offering[]>([]);
   const [showCreate, setShowCreate] = useState(false);
+  const [showStaff, setShowStaff] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<api.Offering | null>(null);
   const [distOffering, setDistOffering] = useState<api.Offering | null>(null);
@@ -88,26 +89,6 @@ function AdminDashboard() {
   };
 
   useEffect(load, []);
-
-  const approve = async (o: api.Offering) => {
-    try {
-      await api.adminApproveOffering(o.offeringId, api.getAdminEmail() || "admin");
-      load();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to approve");
-    }
-  };
-
-  const reject = async (o: api.Offering) => {
-    const reason = prompt("Rejection reason:");
-    if (!reason) return;
-    try {
-      await api.adminRejectOffering(o.offeringId, reason);
-      load();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to reject");
-    }
-  };
 
   const revalue = async (o: api.Offering) => {
     const priceStr = prompt(`New price per unit (currently ${o.pricePerUnit} ${o.currency}):`);
@@ -138,6 +119,26 @@ function AdminDashboard() {
     }
   };
 
+  const delist = async (o: api.Offering) => {
+    const reason = prompt(`Reason for delisting "${o.title}"? (The on-chain asset and any existing holdings are untouched — this only removes it from the public marketplace.)`);
+    if (!reason) return;
+    try {
+      await api.adminDelistOffering(o.offeringId, api.getAdminEmail() || "admin", reason);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delist");
+    }
+  };
+
+  const relist = async (o: api.Offering) => {
+    try {
+      await api.adminRelistOffering(o.offeringId);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to relist");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-[#0b0912] text-neutral-900 dark:text-neutral-100">
       <div className="mx-auto max-w-5xl px-6 py-10">
@@ -151,6 +152,18 @@ function AdminDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Link
+              href="/staff"
+              className="rounded-md border border-neutral-200 dark:border-white/10 px-4 py-2 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-white/5"
+            >
+              Staff review queue →
+            </Link>
+            <button
+              onClick={() => setShowStaff((v) => !v)}
+              className="rounded-md border border-neutral-200 dark:border-white/10 px-4 py-2 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-white/5"
+            >
+              {showStaff ? "Cancel" : "Staff accounts"}
+            </button>
             <button
               onClick={() => setShowCreate((v) => !v)}
               className="rounded-md bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
@@ -161,6 +174,8 @@ function AdminDashboard() {
         </div>
 
         {error && <p className="text-sm text-red-600 dark:text-red-400 mb-4">{error}</p>}
+
+        {showStaff && <StaffAccountsPanel />}
 
         {showCreate && (
           <CreateOfferingForm
@@ -188,19 +203,19 @@ function AdminDashboard() {
                   <td className="px-5 py-3">{o.title}</td>
                   <td className="px-5 py-3 font-mono text-xs text-neutral-600 dark:text-neutral-500">{o.symbol || "—"}</td>
                   <td className="px-5 py-3">
-                    <span className="rounded bg-neutral-100 dark:bg-white/10 px-2 py-0.5 text-xs">{o.status}</span>
+                    <span className="rounded bg-neutral-100 dark:bg-white/10 px-2 py-0.5 text-xs">
+                      {api.STAGE_LABELS[o.status] || o.status}
+                    </span>
                   </td>
                   <td className="px-5 py-3 text-right">{o.totalUnits.toLocaleString()}</td>
                   <td className="px-5 py-3 text-right space-x-3">
-                    {o.status === "pending_approval" && (
-                      <>
-                        <button onClick={() => approve(o)} className="text-emerald-600 dark:text-emerald-400 hover:underline">
-                          Approve
-                        </button>
-                        <button onClick={() => reject(o)} className="text-red-600 dark:text-red-400 hover:underline">
-                          Reject
-                        </button>
-                      </>
+                    {(o.status === "pending_manager_a" ||
+                      o.status === "pending_manager_b" ||
+                      o.status === "pending_trustee_a" ||
+                      o.status === "pending_trustee_b") && (
+                      <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                        Awaiting {api.STAGE_LABELS[o.status]} — see /staff
+                      </span>
                     )}
                     {o.status === "live" && (
                       <>
@@ -223,7 +238,15 @@ function AdminDashboard() {
                         <button onClick={() => setOwnerAccount(o)} className="text-violet-600 dark:text-violet-400 hover:underline">
                           {o.ownerAccountId ? "Owner linked" : "Set owner"}
                         </button>
+                        <button onClick={() => delist(o)} className="text-amber-600 dark:text-amber-400 hover:underline">
+                          Delist
+                        </button>
                       </>
+                    )}
+                    {o.status === "closed" && (
+                      <button onClick={() => relist(o)} className="text-emerald-600 dark:text-emerald-400 hover:underline">
+                        Relist
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -367,6 +390,133 @@ function CreateOfferingForm({ onCreated }: { onCreated: () => void }) {
         </button>
       </div>
     </form>
+  );
+}
+
+// StaffAccountsPanel provisions the four approval-chain seats (Manager A/B,
+// Trustee A/B) — not self-service, an admin assigns them to real people.
+function StaffAccountsPanel() {
+  const [staff, setStaff] = useState<api.StaffMember[]>([]);
+  const [form, setForm] = useState({ email: "", password: "", fullName: "", role: "manager_a" as api.StaffRole });
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = () => {
+    api
+      .adminListStaffAccounts()
+      .then((r) => setStaff(r.staff))
+      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load staff accounts"));
+  };
+  useEffect(load, []);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await api.adminCreateStaffAccount(form);
+      setForm({ email: "", password: "", fullName: "", role: "manager_a" });
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create staff account");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#141019] p-6 mb-8">
+      <h2 className="text-sm font-semibold mb-1">Staff accounts</h2>
+      <p className="text-xs text-neutral-600 dark:text-neutral-500 mb-4">
+        Each seat is a distinct login — a Manager B account cannot also act as Trustee A. Assign exactly one person per role.
+      </p>
+      <form onSubmit={submit} className="grid grid-cols-2 gap-4 mb-6">
+        <TextField label="Full name" value={form.fullName} onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))} required />
+        <TextField
+          label="Email"
+          value={form.email}
+          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+          type="email"
+          required
+        />
+        <TextField
+          label="Temporary password"
+          value={form.password}
+          onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+          type="password"
+          required
+        />
+        <div>
+          <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Role</label>
+          <select
+            value={form.role}
+            onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as api.StaffRole }))}
+            className={authInput}
+          >
+            {(Object.keys(api.STAFF_ROLE_LABELS) as api.StaffRole[]).map((r) => (
+              <option key={r} value={r}>
+                {api.STAFF_ROLE_LABELS[r]}
+              </option>
+            ))}
+          </select>
+        </div>
+        {error && <p className="col-span-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
+        <div className="col-span-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="rounded-md bg-violet-600 px-5 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+          >
+            {submitting ? "Creating…" : "Create staff account"}
+          </button>
+        </div>
+      </form>
+
+      <table className="w-full text-sm">
+        <thead className="text-left text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-500">
+          <tr>
+            <th className="py-2">Name</th>
+            <th className="py-2">Email</th>
+            <th className="py-2">Role</th>
+            <th className="py-2 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {staff.map((st) => (
+            <tr key={st.id} className="border-t border-neutral-200 dark:border-white/5">
+              <td className="py-2">{st.fullName}</td>
+              <td className="py-2 text-neutral-600 dark:text-neutral-500">{st.email}</td>
+              <td className="py-2">
+                <span className="rounded bg-neutral-100 dark:bg-white/10 px-2 py-0.5 text-xs">{api.STAFF_ROLE_LABELS[st.role]}</span>
+              </td>
+              <td className="py-2 text-right">
+                <button
+                  onClick={async () => {
+                    if (!confirm(`Remove ${st.fullName} (${api.STAFF_ROLE_LABELS[st.role]})? This ends their session immediately.`)) return;
+                    try {
+                      await api.adminDeleteStaffAccount(st.id);
+                      load();
+                    } catch (err) {
+                      alert(err instanceof Error ? err.message : "Failed to remove");
+                    }
+                  }}
+                  className="text-red-600 dark:text-red-400 hover:underline"
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
+          {staff.length === 0 && (
+            <tr>
+              <td colSpan={4} className="py-4 text-center text-neutral-600 dark:text-neutral-500">
+                No staff accounts yet.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

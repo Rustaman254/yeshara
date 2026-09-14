@@ -52,6 +52,22 @@ export function clearOwnerSessionToken() {
   localStorage.removeItem("yeshara_owner_session");
 }
 
+// Staff sessions (the Manager A/B, Trustee A/B seats) — sessionStorage like
+// the admin token, since these are operational logins for a shared machine
+// at a desk, not something to keep signed into across browser restarts.
+export function getStaffSessionToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem("yeshara_staff_session");
+}
+
+export function setStaffSessionToken(token: string) {
+  sessionStorage.setItem("yeshara_staff_session", token);
+}
+
+export function clearStaffSessionToken() {
+  sessionStorage.removeItem("yeshara_staff_session");
+}
+
 class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -63,7 +79,7 @@ class ApiError extends Error {
 async function request<T>(
   path: string,
   init?: RequestInit,
-  opts?: { auth?: boolean; admin?: boolean; ownerAuth?: boolean }
+  opts?: { auth?: boolean; admin?: boolean; ownerAuth?: boolean; staffAuth?: boolean }
 ): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (opts?.auth) {
@@ -76,6 +92,10 @@ async function request<T>(
   }
   if (opts?.ownerAuth) {
     const token = getOwnerSessionToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+  }
+  if (opts?.staffAuth) {
+    const token = getStaffSessionToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
@@ -150,7 +170,10 @@ export interface Offering {
   chain: string;
   symbol?: string;
   receiptId: string;
-  status: "pending_approval" | "live" | "rejected" | "closed";
+  // The approval chain is four sequential, separately-authenticated seats
+  // (Manager A -> Manager B -> Trustee A -> Trustee B) before an offering
+  // goes live — see internal/staff and internal/offerings on the backend.
+  status: "pending_manager_a" | "pending_manager_b" | "pending_trustee_a" | "pending_trustee_b" | "live" | "rejected" | "closed";
   createdAt: string;
   availableUnits?: number;
   unitsSold?: number;
@@ -161,6 +184,48 @@ export interface Offering {
   reservedUnits?: number;
   reserveTxHash?: string;
   ownerAccountId?: string;
+  mintTxHash?: string;
+  mintTxUrl?: string;
+  managerAReviewedBy?: string;
+  managerAReviewedAt?: string;
+  managerBReviewedBy?: string;
+  managerBReviewedAt?: string;
+  trusteeAApprovedBy?: string;
+  trusteeAApprovedAt?: string;
+  trusteeBTokenizedBy?: string;
+  trusteeBTokenizedAt?: string;
+  rejectedBy?: string;
+  rejectedStage?: string;
+  rejectedReason?: string;
+}
+
+// STAGE_LABELS/STAGE_ORDER give the UI a human name and a fixed sequence
+// for each status — the same vocabulary internal/offerings.Status uses.
+export const STAGE_LABELS: Record<string, string> = {
+  pending_manager_a: "Manager A review",
+  pending_manager_b: "Manager B countercheck",
+  pending_trustee_a: "Trustee A approval",
+  pending_trustee_b: "Trustee B tokenization",
+  live: "Live",
+  rejected: "Rejected",
+  closed: "Closed",
+};
+
+export type StaffRole = "manager_a" | "manager_b" | "trustee_a" | "trustee_b";
+
+export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
+  manager_a: "Manager A",
+  manager_b: "Manager B",
+  trustee_a: "Trustee A",
+  trustee_b: "Trustee B",
+};
+
+export interface StaffMember {
+  id: string;
+  email: string;
+  fullName: string;
+  role: StaffRole;
+  createdAt: string;
 }
 
 export interface OfferingDetail {
@@ -414,15 +479,29 @@ export const adminUpdateOfferingDetails = (offeringId: string, details: Offering
     { admin: true }
   );
 
-export const adminApproveOffering = (offeringId: string, approvedBy: string) =>
-  request<{ offering: Offering; mintTxHash: string }>(
-    `/api/v1/admin/offerings/${offeringId}/approve`,
-    { method: "POST", body: JSON.stringify({ approvedBy }) },
+// Delisting takes a live offering off the public marketplace — the
+// on-chain asset and every investor's existing holding are untouched, only
+// new discovery/investment stops. Reversible via adminRelistOffering.
+export const adminDelistOffering = (offeringId: string, delistedBy: string, reason: string) =>
+  request<{ offering: Offering }>(
+    `/api/v1/admin/offerings/${offeringId}/delist`,
+    { method: "POST", body: JSON.stringify({ delistedBy, reason }) },
     { admin: true }
   );
 
-export const adminRejectOffering = (offeringId: string, reason: string) =>
-  request(`/api/v1/admin/offerings/${offeringId}/reject`, { method: "POST", body: JSON.stringify({ reason }) }, { admin: true });
+export const adminRelistOffering = (offeringId: string) =>
+  request<{ offering: Offering }>(`/api/v1/admin/offerings/${offeringId}/relist`, { method: "POST" }, { admin: true });
+
+// Offering approval is no longer a single admin action — it's the four-seat
+// Manager A/B -> Trustee A/B chain below (see "Staff" section). An admin
+// only creates the offering and provisions the four staff accounts.
+
+export const adminCreateStaffAccount = (input: { email: string; password: string; fullName: string; role: StaffRole }) =>
+  request<{ staff: StaffMember }>("/api/v1/admin/staff", { method: "POST", body: JSON.stringify(input) }, { admin: true });
+
+export const adminListStaffAccounts = () => request<{ staff: StaffMember[] }>("/api/v1/admin/staff", {}, { admin: true });
+
+export const adminDeleteStaffAccount = (id: string) => request(`/api/v1/admin/staff/${id}`, { method: "DELETE" }, { admin: true });
 
 export const adminListOfferingInvestments = (offeringId: string) =>
   request<{ investments: Investment[] }>(`/api/v1/admin/offerings/${offeringId}/investments`, {}, { admin: true });
@@ -491,6 +570,40 @@ export const adminSetOfferingOwnerAccount = (offeringId: string, email: string) 
     { method: "PATCH", body: JSON.stringify({ email }) },
     { admin: true }
   );
+
+// ── Staff (Manager A/B, Trustee A/B) ────────────────────────────────────
+// The four-seat approval chain an offering moves through before it goes
+// live. Each seat is its own login (provisioned by an admin, see
+// adminCreateStaffAccount above) — segregation of duties is enforced
+// server-side (a session's role decides what it's allowed to do, not
+// anything the client sends), this client just calls the one shared
+// review/reject endpoint and lets the backend dispatch on the logged-in
+// staff member's role.
+
+export const staffLogin = (email: string, password: string) =>
+  request<{ token: string; staff: StaffMember }>("/api/v1/staff/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+export const staffLogout = () => request("/api/v1/staff/auth/logout", { method: "POST" }, { staffAuth: true });
+
+export const staffMe = () => request<{ staff: StaffMember }>("/api/v1/staff/me", {}, { staffAuth: true });
+
+// staffQueue returns whatever's sitting on the logged-in seat's own desk —
+// the server maps role -> status, so the client never needs to know the
+// status vocabulary.
+export const staffQueue = () => request<{ offerings: Offering[]; count: number }>("/api/v1/staff/offerings", {}, { staffAuth: true });
+
+export const staffReviewOffering = (offeringId: string) =>
+  request<{ offering: Offering; mintTxHash?: string; mintTxUrl?: string }>(
+    `/api/v1/staff/offerings/${offeringId}/review`,
+    { method: "POST" },
+    { staffAuth: true }
+  );
+
+export const staffRejectOffering = (offeringId: string, reason: string) =>
+  request(`/api/v1/staff/offerings/${offeringId}/reject`, { method: "POST", body: JSON.stringify({ reason }) }, { staffAuth: true });
 
 // ── Owner accounts ───────────────────────────────────────────────────────
 // The real-world owner of a tokenized asset's 20% reserve (see
