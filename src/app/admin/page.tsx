@@ -122,7 +122,8 @@ function AdminDashboard() {
   };
 
   const delist = async (o: api.Offering) => {
-    const reason = prompt(`Reason for delisting "${o.title}"? (The on-chain asset and any existing holdings are untouched — this only removes it from the public marketplace.)`);
+    if (!confirm(`Delist "${o.title}" from the public marketplace? It will disappear for everyone immediately — existing investors keep their holdings, but no one new can find or invest in it until you relist it.`)) return;
+    const reason = prompt(`Reason for delisting "${o.title}"?`);
     if (!reason) return;
     try {
       await api.adminDelistOffering(o.offeringId, api.getAdminEmail() || "admin", reason);
