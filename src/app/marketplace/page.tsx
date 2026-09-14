@@ -199,6 +199,7 @@ function OfferingCard({
 }) {
   const funded = offering.fundedPct != null ? Math.min(100, Math.round(offering.fundedPct)) : null;
   const minAmount = offering.minInvestmentUnits ? offering.minInvestmentUnits * offering.pricePerUnit : null;
+  const soldOut = offering.availableUnits != null && offering.availableUnits <= 0;
 
   return (
     <div className="group yz-card overflow-hidden hover:border-accent-dim transition-colors">
@@ -214,6 +215,11 @@ function OfferingCard({
         <span className="absolute top-2 left-2 rounded-full bg-ink/70 backdrop-blur px-2.5 py-0.5 text-[0.625rem] font-medium capitalize text-ink-fg">
           {offering.assetType.replace(/_/g, " ")}
         </span>
+        {soldOut && (
+          <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-danger px-3 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white">
+            Sold out
+          </span>
+        )}
         <button
           onClick={onToggleFavorite}
           className="absolute top-2 right-2 rounded-full bg-ink/70 backdrop-blur p-1.5 text-ink-muted hover:text-accent"

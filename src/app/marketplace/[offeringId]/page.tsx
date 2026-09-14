@@ -301,7 +301,14 @@ export default function OfferingDetailPage() {
         <div className="mt-8">
           <h2 className="font-bold text-ink-fg mb-4">Invest</h2>
 
-          {authLoading ? null : !investor ? (
+          {authLoading ? null : availableUnits !== undefined && availableUnits <= 0 ? (
+            <div className="yz-card p-8 text-center">
+              <p className="font-semibold text-ink-fg">Sold out</p>
+              <p className="mt-1 text-sm text-ink-muted">
+                Every unit of {offering.symbol || "this offering"} has already been purchased — there&apos;s nothing left to buy right now.
+              </p>
+            </div>
+          ) : !investor ? (
             <div className="yz-card p-8">
               <p className="text-sm text-ink-muted">
                 <Link href="/sign-in" className="text-accent hover:text-accent-strong underline">

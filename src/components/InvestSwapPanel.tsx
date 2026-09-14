@@ -49,14 +49,20 @@ export function InvestSwapPanel({
   const kesAmountParsed = Number(kesInput) || 0;
   const units = kesPerUnit ? kesAmountParsed / kesPerUnit : 0;
 
+  const soldOut = availableUnits != null && availableUnits <= 0;
+
+  // maxKes === 0 (sold out) must still be checked — `maxKes &&` alone would
+  // treat 0 as falsy and silently skip this validation, letting a would-be
+  // buyer type an amount and reach checkout for units that don't exist.
   const amountError = useMemo(() => {
     if (!kesPerUnit) return "KES checkout isn't available for this offering's currency yet.";
+    if (soldOut) return "Sold out — no units left to buy.";
     if (!kesInput) return null;
     if (kesAmountParsed <= 0) return "Enter an amount";
     if (minKes && kesAmountParsed < minKes) return `Minimum purchase is ${Math.ceil(minKes).toLocaleString()} KES`;
-    if (maxKes && kesAmountParsed > maxKes) return `Only ${Math.floor(maxKes).toLocaleString()} KES worth of units left`;
+    if (maxKes != null && kesAmountParsed > maxKes) return `Only ${Math.floor(maxKes).toLocaleString()} KES worth of units left`;
     return null;
-  }, [kesPerUnit, kesInput, kesAmountParsed, minKes, maxKes]);
+  }, [kesPerUnit, soldOut, kesInput, kesAmountParsed, minKes, maxKes]);
 
   const canContinue = !!kesPerUnit && kesAmountParsed > 0 && !amountError;
 
@@ -240,7 +246,7 @@ export function InvestSwapPanel({
         </p>
       </div>
 
-      {amountError && kesInput && <p className="mt-3 text-sm text-danger">{amountError}</p>}
+      {amountError && (soldOut || kesInput) && <p className="mt-3 text-sm text-danger">{amountError}</p>}
 
       <button onClick={() => setStep("checkout")} disabled={!canContinue} className="yz-btn-primary mt-4 w-full disabled:opacity-40">
         Continue
