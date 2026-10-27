@@ -153,6 +153,26 @@ export interface OfferingDetails {
   disclosures?: string;
 }
 
+// Shariah-compliant offerings live in their own pool on the engine and can
+// only be tokenized once a Shariah board's certificate is attached.
+export interface ShariahCertification {
+  board: string;
+  certificateRef: string;
+  scholars?: string[];
+  issuedAt: string;
+  expiresAt: string;
+  documentUrl?: string;
+}
+
+export interface ShariahProfile {
+  structure: "ijarah" | "musharakah" | "mudarabah" | "murabaha" | "wakalah" | "istisna" | "salam" | "waqf" | string;
+  sector: string;
+  debtToAssets?: number;
+  impermissibleRatio?: number;
+  purificationRatio?: number;
+  certification?: ShariahCertification;
+}
+
 export interface Offering {
   id: string;
   offeringId: string;
@@ -173,7 +193,12 @@ export interface Offering {
   // The approval chain is four sequential, separately-authenticated seats
   // (Manager A -> Manager B -> Trustee A -> Trustee B) before an offering
   // goes live — see internal/staff and internal/offerings on the backend.
-  status: "pending_manager_a" | "pending_manager_b" | "pending_trustee_a" | "pending_trustee_b" | "live" | "rejected" | "closed";
+  status: "pending_manager_a" | "pending_manager_b" | "pending_trustee_a" | "pending_trustee_b" | "live" | "rejected" | "closed" | "removed";
+  shariah?: ShariahProfile;
+  network?: string;
+  removedBy?: string;
+  removedAt?: string;
+  removedReason?: string;
   createdAt: string;
   availableUnits?: number;
   unitsSold?: number;
@@ -464,6 +489,7 @@ export const adminCreateOffering = (input: {
   expectedYieldPct?: number;
   riskLevel?: string;
   details?: OfferingDetails;
+  shariah?: ShariahProfile;
 }) => request<Offering>("/api/v1/admin/offerings", { method: "POST", body: JSON.stringify(input) }, { admin: true });
 
 export const adminRevalueOffering = (offeringId: string, newPricePerUnit: number, reason: string) =>
@@ -492,6 +518,23 @@ export const adminDelistOffering = (offeringId: string, delistedBy: string, reas
 
 export const adminRelistOffering = (offeringId: string) =>
   request<{ offering: Offering }>(`/api/v1/admin/offerings/${offeringId}/relist`, { method: "POST" }, { admin: true });
+
+// Removal retires a tokenized offering for good: refused while investors
+// hold units or payments are pending; otherwise the remaining treasury and
+// owner-reserve units are burned on the engine.
+export const adminRemoveOffering = (offeringId: string, removedBy: string, reason: string) =>
+  request<{ offering: Offering }>(
+    `/api/v1/admin/offerings/${offeringId}/remove`,
+    { method: "POST", body: JSON.stringify({ removedBy, reason }) },
+    { admin: true }
+  );
+
+export const adminCertifyShariah = (offeringId: string, cert: ShariahCertification) =>
+  request<{ offering: Offering }>(
+    `/api/v1/admin/offerings/${offeringId}/shariah-certification`,
+    { method: "POST", body: JSON.stringify(cert) },
+    { admin: true }
+  );
 
 // Offering approval is no longer a single admin action — it's the four-seat
 // Manager A/B -> Trustee A/B chain below (see "Staff" section). An admin

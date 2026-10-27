@@ -108,8 +108,30 @@ export default function OfferingDetailPage() {
               />
               <Stat label="Total units" value={offering.totalUnits.toLocaleString()} />
               <Stat label="Available" value={availableUnits !== undefined ? availableUnits.toLocaleString() : "—"} />
-              <Stat label="Expected yield" value={offering.expectedYieldPct != null ? `${offering.expectedYieldPct}%` : "—"} />
+              <Stat
+                label={offering.shariah ? "Projected rental yield" : "Expected yield"}
+                value={offering.expectedYieldPct != null ? `${offering.expectedYieldPct}%` : "—"}
+                sub={offering.shariah ? "Profit share, not guaranteed" : undefined}
+              />
             </div>
+
+            {offering.shariah && (
+              <div className="mt-6 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm">
+                <p className="font-semibold text-emerald-700 dark:text-emerald-400">Shariah-compliant · {offering.shariah.structure}</p>
+                <p className="mt-1 text-ink-muted">
+                  Held in a separate Shariah pool. Returns come from the asset&apos;s income, not interest, and are not guaranteed.
+                  {offering.shariah.purificationRatio
+                    ? ` ${(offering.shariah.purificationRatio * 100).toFixed(1)}% of income is given to charity (purification).`
+                    : ""}
+                </p>
+                {offering.shariah.certification && (
+                  <p className="mt-2 text-xs text-ink-faint">
+                    Certified by {offering.shariah.certification.board} (ref {offering.shariah.certification.certificateRef}), valid until{" "}
+                    {new Date(offering.shariah.certification.expiresAt).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            )}
 
             {funded != null && (
               <div className="mt-4">

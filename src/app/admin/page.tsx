@@ -133,6 +133,39 @@ function AdminDashboard() {
     }
   };
 
+  const remove = async (o: api.Offering) => {
+    if (!confirm(`Remove "${o.title}" permanently? Every remaining unit is burned on-chain and the offering is retired. This only works once no investor holds any units.`)) return;
+    const reason = prompt(`Reason for removing "${o.title}"?`);
+    if (!reason) return;
+    try {
+      await api.adminRemoveOffering(o.offeringId, api.getAdminEmail() || "admin", reason);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to remove");
+    }
+  };
+
+  const certifyShariah = async (o: api.Offering) => {
+    const board = prompt("Shariah board issuing the certificate?", o.shariah?.certification?.board ?? "");
+    if (!board) return;
+    const certificateRef = prompt("Certificate (fatwa) reference?");
+    if (!certificateRef) return;
+    const issued = prompt("Issued on (YYYY-MM-DD)?", new Date().toISOString().slice(0, 10));
+    const expires = prompt("Expires on (YYYY-MM-DD)?");
+    if (!issued || !expires) return;
+    try {
+      await api.adminCertifyShariah(o.offeringId, {
+        board,
+        certificateRef,
+        issuedAt: new Date(`${issued}T00:00:00Z`).toISOString(),
+        expiresAt: new Date(`${expires}T00:00:00Z`).toISOString(),
+      });
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to record the certificate");
+    }
+  };
+
   const relist = async (o: api.Offering) => {
     try {
       await api.adminRelistOffering(o.offeringId);
@@ -267,6 +300,16 @@ function AdminDashboard() {
                         Relist
                       </button>
                     )}
+                    {(o.status === "live" || o.status === "closed") && (
+                      <button onClick={() => remove(o)} className="text-red-600 dark:text-red-400 hover:underline">
+                        Remove
+                      </button>
+                    )}
+                    {o.shariah && o.status.startsWith("pending_") && (
+                      <button onClick={() => certifyShariah(o)} className="text-emerald-600 dark:text-emerald-400 hover:underline">
+                        {o.shariah.certification ? "Re-certify Shariah" : "Shariah certificate"}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -317,6 +360,11 @@ function CreateOfferingForm({ onCreated }: { onCreated: () => void }) {
     minInvestmentUnits: "",
     expectedYieldPct: "",
     riskLevel: "medium",
+    shariah: false,
+    shariahStructure: "ijarah",
+    shariahSector: "real_estate",
+    shariahDebtToAssets: "",
+    shariahPurificationRatio: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -341,6 +389,14 @@ function CreateOfferingForm({ onCreated }: { onCreated: () => void }) {
         minInvestmentUnits: form.minInvestmentUnits ? Number(form.minInvestmentUnits) : undefined,
         expectedYieldPct: form.expectedYieldPct ? Number(form.expectedYieldPct) : undefined,
         riskLevel: form.riskLevel || undefined,
+        shariah: form.shariah
+          ? {
+              structure: form.shariahStructure,
+              sector: form.shariahSector,
+              debtToAssets: form.shariahDebtToAssets ? Number(form.shariahDebtToAssets) / 100 : undefined,
+              purificationRatio: form.shariahPurificationRatio ? Number(form.shariahPurificationRatio) / 100 : undefined,
+            }
+          : undefined,
       });
       onCreated();
     } catch (err) {
@@ -389,6 +445,34 @@ function CreateOfferingForm({ onCreated }: { onCreated: () => void }) {
           <option value="high">High</option>
         </select>
       </div>
+      <div className="col-span-2">
+        <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <input type="checkbox" checked={form.shariah} onChange={(e) => setForm((f) => ({ ...f, shariah: e.target.checked }))} />
+          Shariah-compliant offering (separate pool; needs a Shariah board certificate before tokenizing)
+        </label>
+      </div>
+      {form.shariah && (
+        <>
+          <div>
+            <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Shariah structure</label>
+            <select
+              value={form.shariahStructure}
+              onChange={(e) => setForm((f) => ({ ...f, shariahStructure: e.target.value }))}
+              className={authInput}
+            >
+              <option value="ijarah">Ijarah (lease)</option>
+              <option value="musharakah">Musharakah (partnership)</option>
+              <option value="mudarabah">Mudarabah</option>
+              <option value="murabaha">Murabaha (cost-plus sale)</option>
+              <option value="wakalah">Wakalah (agency)</option>
+              <option value="istisna">Istisna (construction)</option>
+            </select>
+          </div>
+          <TextField label="Sector" value={form.shariahSector} onChange={set("shariahSector")} />
+          <TextField label="Interest-bearing debt (% of assets)" value={form.shariahDebtToAssets} onChange={set("shariahDebtToAssets")} type="number" />
+          <TextField label="Purification (% of income to charity)" value={form.shariahPurificationRatio} onChange={set("shariahPurificationRatio")} type="number" />
+        </>
+      )}
       <div className="col-span-2">
         <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-500 mb-1">Description</label>
         <textarea

@@ -21,6 +21,7 @@ export default function MarketplacePage() {
   const [sort, setSort] = useState<SortKey>("featured");
   const [showFilter, setShowFilter] = useState(false);
   const [riskFilter, setRiskFilter] = useState<Set<Risk>>(new Set());
+  const [shariahOnly, setShariahOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
@@ -70,6 +71,7 @@ export default function MarketplacePage() {
     let list = offerings;
     if (assetType !== "all") list = list.filter((o) => o.assetType === assetType);
     if (riskFilter.size > 0) list = list.filter((o) => o.riskLevel && riskFilter.has(o.riskLevel as Risk));
+    if (shariahOnly) list = list.filter((o) => o.shariah);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter((o) => o.title.toLowerCase().includes(q) || o.location.toLowerCase().includes(q));
@@ -79,7 +81,7 @@ export default function MarketplacePage() {
     else if (sort === "price_desc") sorted.sort((a, b) => b.pricePerUnit - a.pricePerUnit);
     else if (sort === "yield_desc") sorted.sort((a, b) => (b.expectedYieldPct ?? 0) - (a.expectedYieldPct ?? 0));
     return sorted;
-  }, [offerings, assetType, riskFilter, search, sort]);
+  }, [offerings, assetType, riskFilter, shariahOnly, search, sort]);
 
   return (
     <DashboardShell>
@@ -109,7 +111,7 @@ export default function MarketplacePage() {
             <button
               onClick={() => setShowFilter((v) => !v)}
               className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                riskFilter.size > 0 ? "border-accent text-accent" : "border-card-border-strong text-ink-muted hover:border-accent-dim"
+                riskFilter.size > 0 || shariahOnly ? "border-accent text-accent" : "border-card-border-strong text-ink-muted hover:border-accent-dim"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -136,6 +138,11 @@ export default function MarketplacePage() {
                     {r}
                   </label>
                 ))}
+                <p className="text-[0.65rem] uppercase tracking-wide text-ink-faint mt-3 mb-2">Compliance</p>
+                <label className="flex items-center gap-2 py-1 text-sm text-ink-muted">
+                  <input type="checkbox" checked={shariahOnly} onChange={() => setShariahOnly((v) => !v)} />
+                  Shariah-compliant
+                </label>
               </div>
             )}
           </div>
@@ -241,6 +248,11 @@ function OfferingCard({
 
       <div className="p-4">
         <h3 className="font-semibold text-sm truncate text-ink-fg">{offering.title}</h3>
+        {offering.shariah && (
+          <span className="mt-1 inline-block rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.625rem] font-medium text-emerald-600 dark:text-emerald-400">
+            Shariah-compliant · {offering.shariah.structure}
+          </span>
+        )}
         {offering.location && (
           <p className="mt-1 flex items-center gap-1 text-xs text-ink-faint">
             <MapPin className="h-3 w-3" /> {offering.location}
