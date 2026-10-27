@@ -1,3 +1,18 @@
+# Yeshara
+
+The Next.js frontend for the Yeshara tokenized-property marketplace. The API is `yeshara-backend` (see its README), which tokenizes every offering through comet-engine.
+
+## Features
+
+- **Marketplace.** Live offerings with risk and asset-type filters, plus a **Shariah-compliant** filter and badge. The detail page of a Shariah offering shows its structure, purification and certificate, and labels the yield as projected and not guaranteed.
+- **Admin** (`/admin`):
+  - create offerings, optionally marked Shariah-compliant with structure, sector, debt ratio and purification;
+  - revalue, delist and relist offerings;
+  - **Remove** a live or delisted offering for good (refused while investors hold units);
+  - record the **Shariah certificate** on a pending Shariah offering before it is tokenized.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
